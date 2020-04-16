@@ -1,0 +1,36 @@
+name: CI
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
+      - run: npm install
+      - run: npm run build
+      - run: cp package.json package-lock.json dist
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v1
+        with:
+          name: dist
+          path: dist
+
+      - run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
+      - run: chmod 400 key
+      - run: rsync -rav --delete -e "ssh -i key -o StrictHostKeyChecking=no" dist/ root@209.250.233.140:~/alza-heroes-be
+      - run: ssh -i key -o StrictHostKeyChecking=no root@209.250.233.140 "cd ~/alza-heroes-be && npm i"
+      - run: ssh -i key -o StrictHostKeyChecking=no root@209.250.233.140 "pm2 restart alza-heroes-be"
