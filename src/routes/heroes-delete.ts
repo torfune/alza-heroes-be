@@ -15,7 +15,7 @@ function heroesDelete(db: Db) {
         return
       }
 
-      reply.send('Deleted')
+      reply.send()
     },
     schema: {
       params: {
