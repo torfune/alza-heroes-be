@@ -2,8 +2,8 @@ const corsOptions = {
   origin: (origin: string, cb: Function) => {
     if (
       !origin ||
-      /localhost/.test(origin)
-      // || /karantesty.cz/.test(origin)
+      /localhost/.test(origin) ||
+      /alza-heroes.now.sh/.test(origin)
     ) {
       cb(null, true)
       return
